@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>야구팀 오늘의 운세</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: #111;
+      overflow: hidden;
+    }
+
+    .slider {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      transition: transform 0.45s ease;
+    }
+
+    .slide {
+      min-width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 24px;
+      padding: 28px 24px 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+      text-align: center;
+    }
+
+    .team-badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+
+    .team-name {
+      font-size: 30px;
+      font-weight: 800;
+      margin: 0 0 10px;
+      color: #111;
+    }
+
+    .team-desc {
+      margin: 0 0 24px;
+      font-size: 15px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .qr-wrap {
+      background: #fff;
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid #eee;
+      margin-bottom: 20px;
+    }
+
+    .qr-wrap img {
+      width: 100%;
+      max-width: 260px;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .scan-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: #222;
+      margin-top: 12px;
+    }
+
+    .page-indicator {
+      margin-top: 14px;
+      font-size: 14px;
+      color: #666;
+      font-weight: 600;
+    }
+
+    .nav-btn {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 52px;
+      height: 52px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      color: #111;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+      z-index: 20;
+    }
+
+    .nav-btn:hover {
+      background: #fff;
+    }
+
+    .prev {
+      left: 16px;
+    }
+
+    .next {
+      right: 16px;
+    }
+
+    .dots {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 20;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 90%;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.45);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dot.active {
+      width: 26px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    .top-title {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 15px;
+      font-weight: 700;
+      z-index: 20;
+      letter-spacing: 0.2px;
+      text-align: center;
+    }
+
+    .error-text {
+      color: #c00;
+      font-size: 13px;
+      margin-top: 10px;
+      word-break: keep-all;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        max-width: 360px;
+        padding: 24px 18px 20px;
+      }
+
+      .team-name {
+        font-size: 26px;
+      }
+
+      .team-desc {
+        font-size: 14px;
+      }
+
+      .nav-btn {
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .slide {
+        padding: 16px;
+      }
+
+      .card {
+        max-width: 100%;
+      }
+
+      .team-name {
+        font-size: 24px;
+      }
+
+      .qr-wrap img {
+        max-width: 220px;
+      }
+
+      .prev {
+        left: 10px;
+      }
+
+      .next {
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-title">야구팀 오늘의 운세</div>
+
+  <button class="nav-btn prev" aria-label="이전 슬라이드">‹</button>
+  <button class="nav-btn next" aria-label="다음 슬라이드">›</button>
+
+  <div class="slider" id="slider"></div>
+  <div class="dots" id="dots"></div>
+
+  <script>
+    const teams = [
+      { name: "두산 베어스", shortName: "두산", color: "#1A1748", qr: "images/bears.png" },
+      { name: "LG 트윈스", shortName: "LG", color: "#C30452", qr: "images/twins.png" },
+      { name: "SSG 랜더스", shortName: "SSG", color: "#CE0E2D", qr: "images/landers.png" },
+      { name: "키움 히어로즈", shortName: "키움", color: "#570514", qr: "images/heroes.png" },
+      { name: "KT 위즈", shortName: "KT", color: "#000000", qr: "images/wiz.png" },
+      { name: "한화 이글스", shortName: "한화", color: "#FC4E00", qr: "images/eagles.png" },
+      { name: "KIA 타이거즈", shortName: "KIA", color: "#EA0029", qr: "images/tigers.png" },
+      { name: "삼성 라이온즈", shortName: "삼성", color: "#074CA1", qr: "images/lions.png" },
+      { name: "롯데 자이언츠", shortName: "롯데", color: "#041E42", qr: "images/giants.png" },
+      { name: "NC 다이노스", shortName: "NC", color: "#315288", qr: "images/dinos.png" }
+    ];
+
+    const slider = document.getElementById("slider");
+    const dots = document.getElementById("dots");
+
+    let currentIndex = 0;
+    let startX = 0;
+    let endX = 0;
+
+    function getContrastTextColor(hex) {
+      const color = hex.replace("#", "");
+      const r = parseInt(color.substring(0, 2), 16);
+      const g = parseInt(color.substring(2, 4), 16);
+      const b = parseInt(color.substring(4, 6), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness > 155 ? "#111" : "#fff";
+    }
+
+    function createSlides() {
+      teams.forEach((team, index) => {
+        const slide = document.createElement("section");
+        slide.className = "slide";
+        slide.style.background = `linear-gradient(135deg, ${team.color}, ${team.color}DD)`;
+
+        const badgeTextColor = getContrastTextColor(team.color);
+
+        slide.innerHTML = `
+          <div class="card">
+            <div class="team-badge" style="background:${team.color}; color:${badgeTextColor};">
+              ${team.shortName}
+            </div>
+
+            <h1 class="team-name">${team.name}</h1>
+            <p class="team-desc">아래 QR 코드를 스캔해 팀 페이지로 이동하세요.</p>
+
+            <div class="qr-wrap">
+              <img src="${team.qr}" alt="${team.name} QR 코드"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+              <div class="error-text" style="display:none;">
+                QR 이미지를 찾을 수 없습니다.<br />
+                파일 경로를 확인하세요: <strong>${team.qr}</strong>
+              </div>
+              <div class="scan-text">Scan QR</div>
+            </div>
+
+            <div class="page-indicator">${index + 1} / ${teams.length}</div>
+          </div>
+        `;
+
+        slider.appendChild(slide);
+
+        const dot = document.createElement("button");
+        dot.className = "dot";
+        dot.setAttribute("aria-label", `${team.name}로 이동`);
+        dot.addEventListener("click", () => goToSlide(index));
+        dots.appendChild(dot);
+      });
+
+      updateSlider();
+    }
+
+    function updateSlider() {
+      slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+      const dotElements = document.querySelectorAll(".dot");
+      dotElements.forEach((dot, index) => {
+        dot.classList.toggle("active", index === currentIndex);
+      });
+    }
+
+    function goToSlide(index) {
+      if (index < 0) {
+        currentIndex = teams.length - 1;
+      } else if (index >= teams.length) {
+        currentIndex = 0;
+      } else {
+        currentIndex = index;
+      }
+      updateSlider();
+    }
+
+    document.querySelector(".prev").addEventListener("click", () => {
+      goToSlide(currentIndex - 1);
+    });
+
+    document.querySelector(".next").addEventListener("click", () => {
+      goToSlide(currentIndex + 1);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") goToSlide(currentIndex - 1);
+      if (e.key === "ArrowRight") goToSlide(currentIndex + 1);
+    });
+
+    slider.addEventListener("touchstart", (e) => {
+      startX = e.changedTouches[0].clientX;
+    });
+
+    slider.addEventListener("touchend", (e) => {
+      endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
+
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          goToSlide(currentIndex + 1);
+        } else {
+          goToSlide(currentIndex - 1);
+        }
+      }
+    });
+
+    createSlides();
+  </script>
+</body>
+</html>
