@@ -46,16 +46,6 @@
       text-align: center;
     }
 
-    .team-badge {
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 14px;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 14px;
-    }
-
     .team-name {
       font-size: 30px;
       font-weight: 800;
@@ -150,6 +140,8 @@
       background: rgba(255, 255, 255, 0.45);
       cursor: pointer;
       transition: all 0.2s ease;
+      border: none;
+      padding: 0;
     }
 
     .dot.active {
@@ -237,16 +229,16 @@
 
   <script>
     const teams = [
-      { name: "두산 베어스", shortName: "두산", color: "#1A1748", qr: "images/bears.png" },
-      { name: "LG 트윈스", shortName: "LG", color: "#C30452", qr: "images/twins.png" },
-      { name: "SSG 랜더스", shortName: "SSG", color: "#CE0E2D", qr: "images/landers.png" },
-      { name: "키움 히어로즈", shortName: "키움", color: "#570514", qr: "images/heroes.png" },
-      { name: "KT 위즈", shortName: "KT", color: "#000000", qr: "images/wiz.png" },
-      { name: "한화 이글스", shortName: "한화", color: "#FC4E00", qr: "images/eagles.png" },
-      { name: "KIA 타이거즈", shortName: "KIA", color: "#EA0029", qr: "images/tigers.png" },
-      { name: "삼성 라이온즈", shortName: "삼성", color: "#074CA1", qr: "images/lions.png" },
-      { name: "롯데 자이언츠", shortName: "롯데", color: "#041E42", qr: "images/giants.png" },
-      { name: "NC 다이노스", shortName: "NC", color: "#315288", qr: "images/dinos.png" }
+      { name: "서울 팀 A", color: "#1A1748", qr: "images/bears.png" },
+      { name: "서울 팀 B", color: "#C30452", qr: "images/twins.png" },
+      { name: "인천 팀", color: "#CE0E2D", qr: "images/landers.png" },
+      { name: "서울 팀 C", color: "#570514", qr: "images/heroes.png" },
+      { name: "수원 팀", color: "#000000", qr: "images/wiz.png" },
+      { name: "대전 팀", color: "#FC4E00", qr: "images/eagles.png" },
+      { name: "광주 팀", color: "#EA0029", qr: "images/tigers.png" },
+      { name: "대구 팀", color: "#074CA1", qr: "images/lions.png" },
+      { name: "부산 팀", color: "#041E42", qr: "images/giants.png" },
+      { name: "창원 팀", color: "#315288", qr: "images/dinos.png" }
     ];
 
     const slider = document.getElementById("slider");
@@ -256,31 +248,16 @@
     let startX = 0;
     let endX = 0;
 
-    function getContrastTextColor(hex) {
-      const color = hex.replace("#", "");
-      const r = parseInt(color.substring(0, 2), 16);
-      const g = parseInt(color.substring(2, 4), 16);
-      const b = parseInt(color.substring(4, 6), 16);
-      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-      return brightness > 155 ? "#111" : "#fff";
-    }
-
     function createSlides() {
       teams.forEach((team, index) => {
         const slide = document.createElement("section");
         slide.className = "slide";
         slide.style.background = `linear-gradient(135deg, ${team.color}, ${team.color}DD)`;
 
-        const badgeTextColor = getContrastTextColor(team.color);
-
         slide.innerHTML = `
           <div class="card">
-            <div class="team-badge" style="background:${team.color}; color:${badgeTextColor};">
-              ${team.shortName}
-            </div>
-
             <h1 class="team-name">${team.name}</h1>
-            <p class="team-desc">아래 QR 코드를 스캔해 팀 페이지로 이동하세요.</p>
+            <p class="team-desc">아래 QR 코드를 스캔해 오늘의 운세를 확인하세요.</p>
 
             <div class="qr-wrap">
               <img src="${team.qr}" alt="${team.name} QR 코드"
